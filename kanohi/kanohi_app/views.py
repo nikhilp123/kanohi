@@ -11,81 +11,19 @@ from django.db import transaction
 
 # Create your views here.
 # ----------------------------------------------------------------------------------------------------------------
-def is_kanohi_admin(request):
-    authentication=request.user.is_authenticated()
-    if authentication: 
-        user_cnf=UserDetails.objects.get(user=request.user)
-        user_role=user_cnf.role
-        print(user_role)
-        if int(user_role)==UserDetails.KANOHI_ADMIN:
-            return True
-        else:    
-            return False
-    else:
-        return False 
-#--------------------------------------------------------------------------------------------------------------------------- 
-def is_franchisee_admin(request):
-    authentication=request.user.is_authenticated()
-    if authentication: 
-        user_cnf=UserDetails.objects.get(user=request.user)
-        user_role=user_cnf.role
-        print(user_role)
-        if int(user_role)==UserDetails.FRANCHISEE_ADMIN:
-            return True
-        else:    
-            return False
-    else:
-        return False 
-
-#---------------------------------------------------------------------------------------------------------------------------
 def edit_user_details(request):
-    params=json.loads(request.body)
-    recived_data=get_users_recieved_params(params)
-    modified_data=get_users_modified_params(recived_data)
     admin=is_kanohi_admin(request)
-    franchisee_amin=is_franchisee_admin(request)
-    print(admin)
-    if admin or franchisee_amin:   
-    
-        user_detail_obj=UserDetails.objects.get(id=recived_data["user_id"])
+    if admin:
+        params=json.loads(request.body)
+        edit_user_details_function(params)
         
-        try:
-            user_detail=user_detail_obj.get_json()
-            user_detail.update(**modified_data)
-            user_save=UserDetails.objects.filter(id=recived_data["user_id"]).update(**user_detail)
-            
-        except Exception as e:
-            print(e)
-            return JsonResponse({"validation": "error while updating", "status": False})
-        return JsonResponse({"validation": "done", "status": True})
     return JsonResponse({"validation": " permission restricted", "status": False})
 # ----------------------------------------------------------------------------------------------------------------------------
 def create_user(request):
-    params = json.loads(request.body)
     admin=is_kanohi_admin(request)
-    franchisee_amin=is_franchisee_admin(request)
-    if admin or franchisee_amin :
-        username = params.get('username')
-        user = User.objects.filter(username=username).first()
-        if user:
-            return JsonResponse({"validation": 'Member already registered in the system', "status": False})
-
-        user_obj = User()
-        user_obj.username = username
-        user_obj.set_password(str(params.get('password')))
-        user_obj.save()
-        user_id=user_obj.id
-        data , massage , status = validate_user(params,user_id)
-        if status:
-            try:
-                personal_info= UserDetails.objects.create(**data)
-                print(personal_info)
-                return JsonResponse({"validation": massage, "status": status})
-            except Exception as e:
-                print(e)    
-                return JsonResponse({"validation": 'inconsistence data'})
-        else:
-            return JsonResponse({"validation": massage, "status": status})
+    if admin:
+        params = json.loads(request.body)
+        create_user_function(params)
     else:
         return JsonResponse({"validation": " permission restricted", "status": False})
 # ------------------------------------------------------------------------------------------------------------------------
@@ -105,30 +43,17 @@ def add_kanohi_admin(request):
 def change_password(request):
     if not request.user.is_authenticated():
         return JsonResponse({"redirectConstant": 'LOGIN', "validation":"pleased log in" })
-    
+
     params=json.loads(request.body)
-    user=request.user
-    new_password = str(params.get('newPassword'))
-    confirm_password = str(params.get('confirmPassword'))
-    length_password = len(new_password)
-    if (length_password < 4):
-        return JsonResponse({"validation": 'Passwordis to short. Need minimum of 8 characters', "status": False})
-    if new_password != confirm_password:
-        return JsonResponse({"validation": 'Passwords do not match', "status": False})
-    else:
-        user.set_password(confirm_password)
-        user.save()
-        return JsonResponse({"redirectConstant": "abc", "status": True})
+    
+    return change_password_function(params)
 
 # ------------------------------------------------------------------------------------------------------------------------
 def login_user(request):
     jsonObj = json.loads(request.body)
-    print (jsonObj)
     username = jsonObj.get('username')
     password = jsonObj.get('password')
-    print(username , password)
     user = authenticate(request, username=username, password=password)
-    print(user)
 
     if not user:
         return JsonResponse({"validation":'Invalid Login Credentials'})
@@ -142,7 +67,6 @@ def login_user(request):
     if not system_user:
         return JsonResponse({"validation":'not system user', "status": False})
 
-    print(system_user)    
     try:
         if system_user and int(system_user.role) == UserDetails.DOCTOR:
             return JsonResponse({"redirectUrl":'/systemUserDoctor',"redirectConst":'systemUserDoctor', "status": True})
