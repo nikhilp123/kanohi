@@ -10,7 +10,7 @@ def validate_user(params,user_id):
 	last_name=params.get("last_name")
 	mobile_no=params.get("mobile_no")
 	email=params.get("email")
-	franchisee_id=params.get("franchisee_id")
+	franchisee_id=params.get("franchisee_id") 
 	role=params.get("role")
 	is_active=params.get("is_active")
 
@@ -20,7 +20,7 @@ def validate_user(params,user_id):
 			"last_name":last_name,
 			"mob_number":mobile_no,
 			"email":email,
-			"franchisee":Franchisee.objects.get(id=franchisee_id), 
+			"franchisee":Franchisee.objects.get(id=franchisee_id) if franchisee_id else None,
 			"role":role,
 			"is_active":is_active
 	}

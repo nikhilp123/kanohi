@@ -78,8 +78,8 @@ def create_user(request):
         data , massage , status = validate_user(params,user_id)
         if status:
             try:
-                personal_info,create= UserDetails.objects.create(**data)
-                print(personal_info, create)
+                personal_info= UserDetails.objects.create(**data)
+                print(personal_info)
                 return JsonResponse({"validation": massage, "status": status})
             except Exception as e:
                 print(e)    
@@ -168,9 +168,9 @@ def logout_view(request):
 # ------------------------------------------------------------------------------------------------------
 def get_all_kanohi_admin(request):
     try:
-        kwargs = {}
-        kwargs["role"] = 5   
-        persons = UserDetails.objects.filter(**kwargs)
+        # kwargs = {}
+        # kwargs["role"] = 5   
+        persons = UserDetails.objects.filter(role=5)
         list_out=[]
         for person in persons:
             list_out.append(person.get_json())
