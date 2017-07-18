@@ -108,8 +108,8 @@ def change_password(request):
     
     params=json.loads(request.body)
     user=request.user
-    new_password = str(jsonObj.get('newPassword'))
-    confirm_password = str(jsonObj.get('confirmPassword'))
+    new_password = str(params.get('newPassword'))
+    confirm_password = str(params.get('confirmPassword'))
     length_password = len(new_password)
     if (length_password < 4):
         return JsonResponse({"validation": 'Passwordis to short. Need minimum of 8 characters', "status": False})
@@ -118,7 +118,7 @@ def change_password(request):
     else:
         user.set_password(confirm_password)
         user.save()
-        return JsonResponse({"redirectConstant": "DASHBOARD", "status": True})
+        return JsonResponse({"redirectConstant": "abc", "status": True})
 
 # ------------------------------------------------------------------------------------------------------------------------
 def login_user(request):
@@ -163,18 +163,16 @@ def login_user(request):
 #----------------------------------------------------------------------------------------------------------
 def logout_view(request):
     logout(request)
-    return JsonResponse({"validation":'logged out', "status": False})
+    return JsonResponse({"validation":'logged out', "status": True})
 
 # ------------------------------------------------------------------------------------------------------
 def get_all_kanohi_admin(request):
     try:
-        # kwargs = {}
-        # kwargs["role"] = 5   
         persons = UserDetails.objects.filter(role=5)
         list_out=[]
         for person in persons:
             list_out.append(person.get_json())
-            return JsonResponse({"data": list_out, "status": True})
+        return JsonResponse({"data": list_out, "status": True})
     except Exception as e:
             print('Error in get_all_kanohi_admin: ', e)
             return JsonResponse({"validation": "Failed to get all kanohi admin", "status": False})        
@@ -185,7 +183,7 @@ def get_all_users(request):
         user_list=[]   
         for user in users:
             user_list.append(user.get_json())
-            return JsonResponse({"data": user_list, "status": True})
+        return JsonResponse({"data": user_list, "status": True})
     except Exception as e:
             print('Error in get_all_users: ', e)
             return JsonResponse({"validation": "Failed to get all users", "status": False})        
@@ -197,7 +195,7 @@ def get_all_franchisee(request):
         franchisee_list=[]
         for franchisee in franchisees:
             franchisee_list.append(franchisee.get_json())
-            return JsonResponse({"data": franchisee_list, "status": True})
+        return JsonResponse({"data": franchisee_list, "status": True})
     except Exception as e:
             print('Error in get_all_franchisee: ', e)
             return JsonResponse({"validation": "Failed to get all franchisee", "status": False})        
