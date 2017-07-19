@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
-from kanohi_app.views import create_user,edit_user_details,add_kanohi_admin,create_franchisee,edit_franchisee,login_user,logout_view,change_password,get_all_kanohi_admin,get_all_users,get_all_franchisee
+from kanohi_app.views import create_user,edit_user_details,add_kanohi_admin,create_franchisee,edit_franchisee,login_user,logout_view,change_password,get_all_kanohi_admin,get_all_users,get_all_franchisee,search_kanohi_admin
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -30,4 +30,5 @@ urlpatterns = [
     url(r'^kanohi/get/all/kanohi/admin/', get_all_kanohi_admin),
     url(r'^kanohi/get/all/kanohi/user/', get_all_users),
     url(r'^kanohi/get/all/kanohi/franchisee/', get_all_franchisee),
+    url(r'^kanohi/search/admin/', search_kanohi_admin),
 ]

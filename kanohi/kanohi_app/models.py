@@ -82,6 +82,8 @@ class UserDetails(models.Model):
 		result["last_name"]=self.last_name
 		result["mob_number"]=self.mob_number
 		result["email"]=self.email
+		result["role"]=self.role
+		result["role_name"]=self.get_role_display()
 		result["franchisee"]=self.franchisee.get_json() if self.franchisee else None
 		result["is_active"]=self.is_active
 

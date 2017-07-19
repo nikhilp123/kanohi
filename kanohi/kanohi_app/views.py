@@ -6,9 +6,8 @@ from django.contrib.auth.models import User
 from django.shortcuts import render
 from .models import *
 import json
-# from .validation import *
 from django.db import transaction
-from .helper_functions import is_kanohi_admin,create_user_function,edit_user_details_function,change_password_function,create_franchisee_function,edit_franchisee_function
+from .helper_functions import is_kanohi_admin,create_user_function,edit_user_details_function,change_password_function,create_franchisee_function,edit_franchisee_function,search_kanohi_admin_function
 
 # Create your views here.
 # ----------------------------------------------------------------------------------------------------------------
@@ -149,13 +148,9 @@ def search_kanohi_admin(request):
     admin=is_kanohi_admin(request)
     if admin:   
         params=json.loads(request.body)
-        first_name=params.get("first_name")
-        admins=UserDetails.objects.filter(first_name__icontains=first_name)
-        admin_list=[]
-        for person in admins:
-            admin_list.append(person.get_json())
-        return JsonResponse({"data": admin_list, "status": True})
+        return search_kanohi_admin_function(params)
     return JsonResponse({"validation": " permission restricted", "status": False})
+#------------------------------------------------------------------------------------------------------------------------- 
 
 
 

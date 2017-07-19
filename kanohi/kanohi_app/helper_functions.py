@@ -3,6 +3,7 @@ from kanohi.settings import BASE_DIR, DEBUG
 from django.contrib.auth import authenticate, login,logout
 from django.http import HttpRequest, HttpResponse, JsonResponse, HttpResponseRedirect
 from django.db import transaction
+from django.db.models import Q
 from .models import UserDetails, User,Franchisee
 from .validation import validate_user,get_users_recieved_params,get_users_modified_params,validate_franchisee,get_franchisee_modified_params,get_franchisee_recieved_params
 
@@ -126,3 +127,25 @@ def edit_franchisee_function(params):
         return JsonResponse({"validation": " error while updating", "status": False})
     return JsonResponse({"validation": "done", "status": True})
 # ------------------------------------------------------------------------------------------------------------------
+def search_kanohi_admin_function(params):
+    try:
+        search_string=params.get("search_string")
+        is_active=params.get("is_active")
+
+        args = Q()
+        args = args | Q(first_name__icontains=search_string) | Q(id=search_string)
+
+        kwargs = {}
+        kwargs['role'] = UserDetails.KANOHI_ADMIN
+        kwargs['is_active'] = is_active
+
+        admins=UserDetails.objects.filter(*(args,),**kwargs)
+
+        print(admins)
+        admin_list=[]
+        for person in admins:
+            admin_list.append(person.get_json())
+        return JsonResponse({"data": admin_list, "status": True})
+    except Exception as e:
+        print(e)
+        return JsonResponse({"validation": "search not found", "status": False})
