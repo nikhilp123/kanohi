@@ -15,18 +15,18 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
-from kanohi_app.views import *
+from kanohi_app.views import create_user,edit_user_details,add_kanohi_admin,create_franchisee,edit_franchisee,login_user,logout_view,change_password,get_all_kanohi_admin,get_all_users,get_all_franchisee
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^kanohi/add/user/', create_user),
-    url(r'^kanohi/add/kanohi/admin/', add_kanohi_admin),
+    url(r'^kanohi/create/user/', create_user),
     url(r'^kanohi/edit/user/', edit_user_details),
-    url(r'^kanohi/change/password/', change_password),
+    url(r'^kanohi/create/kanohi/admin/', add_kanohi_admin),
     url(r'^kanohi/create/franchisee/', create_franchisee),
     url(r'^kanohi/edit/franchisee/', edit_franchisee),
     url(r'^kanohi/login/user/', login_user),
     url(r'^kanohi/logout/user/', logout_view),
+    url(r'^kanohi/change/password/', change_password),
     url(r'^kanohi/get/all/kanohi/admin/', get_all_kanohi_admin),
     url(r'^kanohi/get/all/kanohi/user/', get_all_users),
     url(r'^kanohi/get/all/kanohi/franchisee/', get_all_franchisee),

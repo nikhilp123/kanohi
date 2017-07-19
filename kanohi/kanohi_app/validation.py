@@ -1,26 +1,31 @@
 import datetime, csv, json
 from kanohi_app.models import *
 # from kanohi_app.veiws import *
-from kanohi_app.helper_functions import *
+# from .helper_functions import convert_epoch_to_date
+# -----------------------------------------------------------------------------------------------------
+def convert_epoch_to_date(epoch):
+    return datetime.datetime.fromtimestamp(int(epoch)/1000.0) if epoch else None
+# -----------------------------------------------------------------------------------------------
 
 def validate_user(params,user_id):
 	kwargs={}
 	user = User.objects.get(id=user_id)
 	first_name=params.get("first_name")
 	last_name=params.get("last_name")
-	mobile_no=params.get("mobile_no")
+	mob_number=params.get("mob_number")
 	email=params.get("email")
-	franchisee_id=params.get("franchisee_id") 
 	role=params.get("role")
+	franchisee_id=params.get("franchisee_id") 
 	is_active=params.get("is_active")
+
 
 	kwargs={
 			"user":user,
 			"first_name":first_name,
 			"last_name":last_name,
-			"mob_number":mobile_no,
+			"mob_number":mob_number,
 			"email":email,
-			"franchisee":Franchisee.objects.get(id=franchisee_id) if franchisee_id else None,
+			"franchisee":(Franchisee.objects.get(id=franchisee_id) if franchisee_id else None) if role != "5" else None,
 			"role":role,
 			"is_active":is_active
 	}
@@ -61,7 +66,7 @@ def validate_franchisee(params):
 	}
 	return kwargs , "save franchisee", True
 #---------------------------------------------------------------------------------------------------
-def get_recieved_params(params):
+def get_franchisee_recieved_params(params):
     kwargs={
         "franchisee_id":params.get("franchisee_id"),
         "franchisee_name":params.get("franchisee_name"),
@@ -78,8 +83,8 @@ def get_recieved_params(params):
         "pincode":params.get("pincode"),
         "is_active":params.get("is_active")}
     return kwargs
-
-def get_modified_params(recived_data):
+# ----------------------------------------------------------------------------------------------------------------
+def get_franchisee_modified_params(recived_data):
     kwargs={"franchisee_name" :recived_data["franchisee_name"],
         "owner_first_name":recived_data["owner_first_name"],
         "owner_last_name":recived_data["owner_last_name"],
@@ -94,7 +99,7 @@ def get_modified_params(recived_data):
         "pincode":recived_data["pincode"],
         "is_active":recived_data["is_active"]}
     return kwargs        
-
+# -----------------------------------------------------------------------------------------------------------
 def get_users_recieved_params(params):
     kwargs={ "user_id":params.get("user_id"), 
     "first_name":params.get("first_name"),
@@ -104,8 +109,10 @@ def get_users_recieved_params(params):
     "franchisee_id":params.get("franchisee_id"),
     "role":params.get("role"),
     "is_active":params.get("is_active")}
-    return kwargs 
-
+    if kwargs["role"] == "5":
+    	kwargs["franchisee_id"] =None
+    	return kwargs 
+# ------------------------------------------------------------------------------------------------------
 def get_users_modified_params(recived_data):
     kwargs={"first_name" :recived_data["first_name"],
         "last_name" :recived_data["last_name"],
@@ -115,5 +122,5 @@ def get_users_modified_params(recived_data):
         "role" :recived_data["role"],
         "is_active" :recived_data["is_active"]}
     return kwargs
-
+# ---------------------------------------------------------------------------------------------------------
 

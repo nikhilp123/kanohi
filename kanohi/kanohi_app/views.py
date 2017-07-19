@@ -6,8 +6,9 @@ from django.contrib.auth.models import User
 from django.shortcuts import render
 from .models import *
 import json
-from .validation import *
+# from .validation import *
 from django.db import transaction
+from .helper_functions import is_kanohi_admin,create_user_function,edit_user_details_function,change_password_function,create_franchisee_function,edit_franchisee_function
 
 # Create your views here.
 # ----------------------------------------------------------------------------------------------------------------
@@ -15,17 +16,18 @@ def edit_user_details(request):
     admin=is_kanohi_admin(request)
     if admin:
         params=json.loads(request.body)
-        edit_user_details_function(params)
+        return edit_user_details_function(params)
         
     return JsonResponse({"validation": " permission restricted", "status": False})
 # ----------------------------------------------------------------------------------------------------------------------------
 def create_user(request):
     admin=is_kanohi_admin(request)
+    print(admin)
     if admin:
         params = json.loads(request.body)
-        create_user_function(params)
-    else:
-        return JsonResponse({"validation": " permission restricted", "status": False})
+        return create_user_function(params)
+    
+    return JsonResponse({"validation": " permission restricted", "status": False})
 # ------------------------------------------------------------------------------------------------------------------------
 # note: add kanohi admin=recieved hard coded role_type =5 from front end
 # --------------------------------------------------------------------------------------------------------------------------------
@@ -34,7 +36,8 @@ def add_kanohi_admin(request):
     admin=is_kanohi_admin(request)
     if admin:
         try:
-            return create_user(request)
+            with transaction.atomic():
+                return create_user(request)
         except Exception as e:
             print(e)
             return JsonResponse({"validation": 'inconsistence data'})
@@ -45,14 +48,15 @@ def change_password(request):
         return JsonResponse({"redirectConstant": 'LOGIN', "validation":"pleased log in" })
 
     params=json.loads(request.body)
+    user=request.user
     
-    return change_password_function(params)
+    return change_password_function(params,user)
 
 # ------------------------------------------------------------------------------------------------------------------------
 def login_user(request):
-    jsonObj = json.loads(request.body)
-    username = jsonObj.get('username')
-    password = jsonObj.get('password')
+    params = json.loads(request.body)
+    username = params.get('username')
+    password = params.get('password')
     user = authenticate(request, username=username, password=password)
 
     if not user:
@@ -88,7 +92,6 @@ def login_user(request):
 def logout_view(request):
     logout(request)
     return JsonResponse({"validation":'logged out', "status": True})
-
 # ------------------------------------------------------------------------------------------------------
 def get_all_kanohi_admin(request):
     try:
@@ -126,47 +129,22 @@ def get_all_franchisee(request):
 
 # ----------------------------------------------------------------------------------------------------------------------------
 def create_franchisee(request):
-    params=json.loads(request.body)
     admin=is_kanohi_admin(request)
-    franchisee_amin=is_franchisee_admin(request)
-    if admin or franchisee_amin:    
-        data , massage , status =validate_franchisee(params)
-        if status:
-            try:
-                create_franchisee = Franchisee.objects.create(**data)
-                return JsonResponse({"validation": massage, "status": status})
-            except Exception as e:
-                print(e)    
-                return JsonResponse({"validation": 'inconsistence data'})
-        else:
-            return JsonResponse({"validation": massage, "status": status})
+    if admin:    
+        params=json.loads(request.body)
+        return create_franchisee_function(params)
     else:
         return JsonResponse({"validation": " permission restricted", "status": False})
 
 # ---------------------------------------------------------------------------------------------------------------------
 def edit_franchisee(request):
-    params=json.loads(request.body)
-    recived_data=get_recieved_params(params)
-    modified_data=get_modified_params(recived_data)
     admin=is_kanohi_admin(request)
-    franchisee_amin=is_franchisee_admin(request)
-    print(admin)
-    if admin or franchisee_amin :   
-    
-        franchisee_obj=Franchisee.objects.get(id=recived_data["franchisee_id"])
-        
-        try:
-            franchisee_detail=franchisee_obj.get_json()
-            franchisee_detail.update(**modified_data)
-            franchisee_save=Franchisee.objects.filter(id=recived_data["franchisee_id"]).update(**franchisee_detail)
-            
-        except Exception as e:
-            print(e)
-            return JsonResponse({"validation": " error while updating", "status": False})
-        return JsonResponse({"validation": "done", "status": True})
+    if admin:   
+        params=json.loads(request.body)
+        return edit_franchisee_function(params)
     return JsonResponse({"validation": " permission restricted", "status": False})
 # ------------------------------------------------------------------------------------------------------------------
-
+# results = BlogPost.objects.filter(Q(title__icontains=your_search_query) | Q(intro__icontains=your_search_query) | Q(content__icontains=your_search_query))
 
 
 

@@ -4,9 +4,12 @@ from __future__ import unicode_literals
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
-from .helper_functions import *
-
+# -------------------------------------------------------------------------------------------------------
 # Create your models here.
+
+def convert_date_to_epoch(date):
+    return int(date.strftime('%s'))*1000 if date else None
+# --------------------------------------------------------------------------------------------------------
 
 class Franchisee(models.Model):
 	franchisee_name=models.CharField(max_length=50)
@@ -42,7 +45,7 @@ class Franchisee(models.Model):
 		result["pincode"]=self.pincode
 		result["is_active"]=self.is_active
 		return result
-		
+#-------------------------------------------------------------------------------------------------------------------------------------------------- 
 
 class UserDetails(models.Model):
 	DOCTOR = 1
@@ -83,6 +86,6 @@ class UserDetails(models.Model):
 		result["is_active"]=self.is_active
 
 		return result
-
+# ----------------------------------------------------------------------------------------------------------------------------------
 
 
