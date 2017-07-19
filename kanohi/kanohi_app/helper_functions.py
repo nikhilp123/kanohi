@@ -149,3 +149,25 @@ def search_kanohi_admin_function(params):
     except Exception as e:
         print(e)
         return JsonResponse({"validation": "search not found", "status": False})
+#------------------------------------------------------------------------------------------------------------- 
+def search_user_function(params):
+    try:
+        search_string=params.get("search_string")
+        is_active=params.get("is_active")
+
+        args = Q()
+        args = args | Q(first_name__icontains=search_string) | Q(id=search_string)| Q(franchisee=search_string)| Q(role=search_string)
+
+        kwargs = {}
+        kwargs['is_active'] = is_active
+
+        admins=UserDetails.objects.filter(*(args,),**kwargs)
+
+        print(admins)
+        admin_list=[]
+        for person in admins:
+            admin_list.append(person.get_json())
+        return JsonResponse({"data": admin_list, "status": True})
+    except Exception as e:
+        print(e)
+        return JsonResponse({"validation": "search not found", "status": False})

@@ -7,7 +7,7 @@ from django.shortcuts import render
 from .models import *
 import json
 from django.db import transaction
-from .helper_functions import is_kanohi_admin,create_user_function,edit_user_details_function,change_password_function,create_franchisee_function,edit_franchisee_function,search_kanohi_admin_function
+from .helper_functions import is_kanohi_admin,create_user_function,edit_user_details_function,change_password_function,create_franchisee_function,edit_franchisee_function,search_kanohi_admin_function,search_user_function
 
 # Create your views here.
 # ----------------------------------------------------------------------------------------------------------------
@@ -151,7 +151,12 @@ def search_kanohi_admin(request):
         return search_kanohi_admin_function(params)
     return JsonResponse({"validation": " permission restricted", "status": False})
 #------------------------------------------------------------------------------------------------------------------------- 
-
+def search_user(request):
+    admin=is_kanohi_admin(request)
+    if admin:   
+        params=json.loads(request.body)
+        return search_user_function(params)
+    return JsonResponse({"validation": " permission restricted", "status": False})
 
 
 
