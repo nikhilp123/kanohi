@@ -145,7 +145,17 @@ def edit_franchisee(request):
     return JsonResponse({"validation": " permission restricted", "status": False})
 # ------------------------------------------------------------------------------------------------------------------
 # results = BlogPost.objects.filter(Q(title__icontains=your_search_query) | Q(intro__icontains=your_search_query) | Q(content__icontains=your_search_query))
-
+def search_kanohi_admin(request):
+    admin=is_kanohi_admin(request)
+    if admin:   
+        params=json.loads(request.body)
+        first_name=params.get("first_name")
+        admins=UserDetails.objects.filter(first_name__icontains=first_name)
+        admin_list=[]
+        for person in admins:
+            admin_list.append(person.get_json())
+        return JsonResponse({"data": admin_list, "status": True})
+    return JsonResponse({"validation": " permission restricted", "status": False})
 
 
 
