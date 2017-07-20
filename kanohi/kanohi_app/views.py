@@ -7,7 +7,8 @@ from django.shortcuts import render
 from .models import *
 import json
 from django.db import transaction
-from .helper_functions import is_kanohi_admin,create_user_function,edit_user_details_function,change_password_function,create_franchisee_function,edit_franchisee_function,search_kanohi_admin_function,search_user_function
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from .helper_functions import is_kanohi_admin,create_user_function,edit_user_details_function,change_password_function,create_franchisee_function,edit_franchisee_function,search_kanohi_admin_function,search_user_function,search_franchisee_function
 
 # Create your views here.
 # ----------------------------------------------------------------------------------------------------------------
@@ -98,7 +99,20 @@ def get_all_kanohi_admin(request):
         list_out=[]
         for person in persons:
             list_out.append(person.get_json())
-        return JsonResponse({"data": list_out, "status": True})
+            paginator = Paginator(list_out,2) # Show 25 contacts per page
+            print(paginator)
+            page = request.GET.get('page')
+            try:
+                admin = paginator.page(page)
+                print(admin)
+            except PageNotAnInteger:
+                # If page is not an integer, deliver first page.
+                admin = paginator.page(1)
+            except EmptyPage:
+                # If page is out of range (e.g. 9999), deliver last page of results.
+                admin = paginator.page(paginator.num_pages)
+
+            return JsonResponse({"data": admin, "status": True})
     except Exception as e:
             print('Error in get_all_kanohi_admin: ', e)
             return JsonResponse({"validation": "Failed to get all kanohi admin", "status": False})        
@@ -156,6 +170,13 @@ def search_user(request):
     if admin:   
         params=json.loads(request.body)
         return search_user_function(params)
+    return JsonResponse({"validation": " permission restricted", "status": False})
+#-------------------------------------------------------------------------------------------------------------------------------------- 
+def search_franchisee(request):
+    admin=is_kanohi_admin(request)
+    if admin:   
+        params=json.loads(request.body)
+        return search_franchisee_function(params)
     return JsonResponse({"validation": " permission restricted", "status": False})
 
 
